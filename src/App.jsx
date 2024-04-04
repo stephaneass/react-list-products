@@ -14,19 +14,36 @@ const PRODUCTS = [
 ]
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showStockedOnly, setShowStockedOnly] = useState(0)
+  const [search, setSearch] = useState("")
+
+  const visibleProducts = PRODUCTS.filter(product => {
+    if (showStockedOnly && !product.stocked) {
+      return false
+    }
+
+    if (search && !product.name.includes(search)) {
+      return false
+    }
+    
+    return true
+  })
 
   return <div className="container my-3">
-    <SearchBar />
-    <ProductTable products={PRODUCTS}/>
+    <SearchBar showStockedOnly={showStockedOnly} onStockOnlyChange={setShowStockedOnly} search={search} onSearchChange={setSearch}/>
+    <ProductTable products={visibleProducts}/>
   </div>
 }
 
-function SearchBar () {
+function SearchBar ({showStockedOnly, onStockOnlyChange, search, onSearchChange}) {
   return <div>
       <div className='mb-3'>
-        <Input value="" placeholder="Rechercher" onChange={() => null}/>
-        <Checkbox id="stocked" checked={false} onChange={() => null} label="N'afficher que les produits en stock" />
+        <Input value={search} placeholder="Rechercher" onChange={onSearchChange}/>
+        <Checkbox 
+            id="stocked" 
+            checked={showStockedOnly} 
+            onChange={onStockOnlyChange} 
+            label="N'afficher que les produits en stock" />
       </div>
   </div>
 }
@@ -44,7 +61,7 @@ function ProductTable ({products}) {
   }
 
   return (
-    <table>
+    <table className='table'>
       <thead>
         <tr>
           <th>Nom</th>
